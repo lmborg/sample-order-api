@@ -18,6 +18,7 @@ public class OrderApiDbContext(DbContextOptions<OrderApiDbContext> options) : Db
             b.Property(p => p.Price).IsRequired();
             b.Property(p => p.StockQuantity).IsRequired();
             b.Property(p => p.IsDeleted).HasDefaultValue(false);
+            b.Property(p => p.Version).IsConcurrencyToken();
             
             b.HasQueryFilter(p => !p.IsDeleted);
         });

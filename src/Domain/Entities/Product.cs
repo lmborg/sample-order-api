@@ -7,4 +7,5 @@ public class Product
     public required decimal Price { get; set; }
     public int StockQuantity { get; set; }
     public bool IsDeleted { get; set; }
+    public long Version { get; set; }
 }

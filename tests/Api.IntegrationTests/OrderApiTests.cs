@@ -5,6 +5,9 @@ using Api.Requests;
 using Application.Orders;
 using Application.Products.Commands;
 using FluentAssertions;
+
+using Infrastructure.Data;
+
 using Microsoft.Extensions.Time.Testing;
 
 namespace Api.IntegrationTests;
@@ -13,6 +16,7 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
 {
     private readonly HttpClient _client = application.CreateClient();
     private readonly FakeTimeProvider _timeProvider = application.TimeProvider;
+    private readonly OrderApiDbContext _dbContext = application.OrderApiDbContext;
     readonly JsonSerializerOptions _serializerOptions = new() { PropertyNameCaseInsensitive = true };
 
     [Fact]
@@ -131,6 +135,12 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
         var submitOrderResponse = await _client.PostAsync("orders", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"));
         
         submitOrderResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task UpdatingProductStock_Fails_WhenVersionIsNotCurrent()
+    {
+        // todo: implement this test to ensure that the product version check prevents race conditions        
     }
     
     private async Task<ProductResponse?> GetProduct(ProductResponse product1)

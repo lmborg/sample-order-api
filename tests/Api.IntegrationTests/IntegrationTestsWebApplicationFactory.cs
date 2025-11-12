@@ -12,6 +12,7 @@ namespace Api.IntegrationTests;
 public class IntegrationTestsWebApplicationFactory : WebApplicationFactory<Program>
 {
     public FakeTimeProvider TimeProvider { get; } = new();
+    public OrderApiDbContext OrderApiDbContext { get; private set; }
     
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -34,8 +35,8 @@ public class IntegrationTestsWebApplicationFactory : WebApplicationFactory<Progr
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
             var scopedServices = scope.ServiceProvider;
-            var db = scopedServices.GetRequiredService<OrderApiDbContext>();
-            db.Database.Migrate();
+            OrderApiDbContext = scopedServices.GetRequiredService<OrderApiDbContext>();
+            OrderApiDbContext.Database.Migrate();
         });
     }
 }
