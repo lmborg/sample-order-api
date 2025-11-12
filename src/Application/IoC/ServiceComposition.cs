@@ -25,6 +25,7 @@ public static class ServiceComposition
         services.AddTransient<ICommandHandler<SubmitOrderCommand, OrderSummaryResponse>, SubmitOrderCommandHandler>();
 
         services.AddTransient<IQueryHandler<DailySummaryQuery, DailySummaryResponse>, DailySummaryQueryHandler>();
+        services.AddTransient<IQueryHandler<LowStockQuery, LowStockResponse>, LowStockQueryHandler>();
 
         services.AddSingleton(TimeProvider.System);
 

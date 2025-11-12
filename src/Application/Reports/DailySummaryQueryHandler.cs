@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Reports;
 
-public class DailySummaryQueryHandler(IOrderApiDbContext dbContext, TimeProvider timeProvider) : IQueryHandler<DailySummaryQuery, DailySummaryResponse>
+public class DailySummaryQueryHandler(IOrderApiDbContext dbContext) : IQueryHandler<DailySummaryQuery, DailySummaryResponse>
 {
     public async Task<DailySummaryResponse> Handle(DailySummaryQuery query, CancellationToken cancellationToken)
     {
