@@ -1,5 +1,7 @@
 ﻿using Domain.Exceptions;
 
+using FluentValidation;
+
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +14,7 @@ public class DefaultExceptionHandler(IProblemDetailsService problemDetailsServic
         httpContext.Response.StatusCode = exception switch
         {
             ProductNotFoundException _ => StatusCodes.Status404NotFound,
+            ValidationException _ => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
 

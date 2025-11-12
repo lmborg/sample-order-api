@@ -3,12 +3,16 @@ using Application.Abstractions.Messaging;
 
 using Domain.Entities;
 
+using FluentValidation;
+
 namespace Application.Products.Commands;
 
-public class CreateProductCommandHandler(IOrderApiDbContext dbContext) : ICommandHandler<CreateProductCommand, ProductResponse>
+public class CreateProductCommandHandler(IOrderApiDbContext dbContext, IValidator<CreateProductCommand> validator) : ICommandHandler<CreateProductCommand, ProductResponse>
 {
     public async Task<ProductResponse> Handle(CreateProductCommand command, CancellationToken cancellationToken)
     {
+        validator.ValidateAndThrow(command);
+        
         var product = new Product
         {
             Id = Guid.NewGuid(),

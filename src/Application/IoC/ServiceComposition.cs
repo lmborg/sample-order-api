@@ -2,6 +2,8 @@
 using Application.Products.Commands;
 using Application.Products.Queries;
 
+using FluentValidation;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.IoC;
@@ -13,6 +15,10 @@ public static class ServiceComposition
         services.AddTransient<ICommandHandler<CreateProductCommand, ProductResponse>, CreateProductCommandHandler>();
         services.AddTransient<IQueryHandler<GetAllProductsQuery, IEnumerable<ProductResponse>>, GetAllProductsQueryHandler>();
         services.AddTransient<IQueryHandler<GetProductByIdQuery, ProductResponse>, GetProductByIdQueryHandler>();
+        services.AddTransient<ICommandHandler<UpdateProductPriceCommand, ProductResponse>, UpdateProductPriceCommandHandler>();
+        services.AddTransient<ICommandHandler<UpdateProductStockCommand, ProductResponse>, UpdateProductStockCommandHandler>();
+        
+        services.AddValidatorsFromAssembly(typeof(ServiceComposition).Assembly, includeInternalTypes: true);
 
         return services;
     }

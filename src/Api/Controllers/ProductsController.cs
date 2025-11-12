@@ -12,7 +12,9 @@ namespace Api.Controllers;
 public class ProductsController(
     ICommandHandler<CreateProductCommand, ProductResponse> createProductCommandHandler,
     IQueryHandler<GetAllProductsQuery, IEnumerable<ProductResponse>> getAllProductsQueryHandler,
-    IQueryHandler<GetProductByIdQuery, ProductResponse> getProductByIdQueryHandler) : ControllerBase
+    IQueryHandler<GetProductByIdQuery, ProductResponse> getProductByIdQueryHandler,
+    ICommandHandler<UpdateProductStockCommand, ProductResponse> updateProductStockCommandHandler,
+    ICommandHandler<UpdateProductPriceCommand, ProductResponse> updateProductPriceCommandHandler) : ControllerBase
 {
     [HttpPost]
     public async Task<ProductResponse> CreateProduct(CreateProductRequest request, CancellationToken cancellationToken)
@@ -32,5 +34,21 @@ public class ProductsController(
     public async Task<ProductResponse> GetProductById(Guid id, CancellationToken cancellationToken)
     {
         return await getProductByIdQueryHandler.Handle(new GetProductByIdQuery(id), cancellationToken);
+    }
+    
+    [HttpPut]
+    [Route("{productId:guid}/stock")]
+    public async Task<ProductResponse> UpdateProductStock([FromRoute] Guid productId, UpdateProductStockRequest request, CancellationToken cancellationToken)
+    {
+        var command = new UpdateProductStockCommand(productId, request.StockQuantity);
+        return await updateProductStockCommandHandler.Handle(command, cancellationToken);
+    }
+    
+    [HttpPut]
+    [Route("{productId:guid}/price")]
+    public async Task<ProductResponse> UpdateProductPrice([FromRoute] Guid productId, UpdateProductPriceRequest request, CancellationToken cancellationToken)
+    {
+        var command = new UpdateProductPriceCommand(productId, request.Price);
+        return await updateProductPriceCommandHandler.Handle(command, cancellationToken);
     }
 }

@@ -46,7 +46,32 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
         var productResponse = await _client.GetAsync("products/unknown-id");
         
         productResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        
         productResponse.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+    }
+    
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task UpdateProductPrice_ReturnsBadRequest_WhenPriceIsInvalid(decimal price)
+    {
+        var fakeProductId = Guid.NewGuid();
+        var request = new UpdateProductPriceRequest(price);
+        
+        var response = await _client.PutAsync($"products/{fakeProductId}/price", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"));
+        
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+    }
+    
+    [Fact]
+    public async Task UpdateProductStock_ReturnsBadRequest_WhenQuantityIsInvalid()
+    {
+        var fakeProductId = Guid.NewGuid();
+        var request = new UpdateProductStockRequest(-1);
+        
+        var response = await _client.PutAsync($"products/{fakeProductId}/stock", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"));
+        
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
     }
 }
