@@ -4,15 +4,19 @@ using System.Text.Json;
 
 using Api.Requests;
 
+using Application.Orders;
 using Application.Products.Commands;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Time.Testing;
 
 namespace Api.IntegrationTests;
 
 public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : IClassFixture<IntegrationTestsWebApplicationFactory>
 {
     private readonly HttpClient _client = application.CreateClient();
+    private readonly FakeTimeProvider _timeProvider = application.TimeProvider;
     readonly JsonSerializerOptions _serializerOptions = new() { PropertyNameCaseInsensitive = true };
 
     [Fact]
@@ -94,6 +98,37 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
         var getResponse = await _client.GetAsync($"products/{product.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+    
+    [Fact]
+    public async Task SubmitOrder_ReducesProductStock_ReturnsOrderSummary()
+    {
+        _timeProvider.SetUtcNow(new DateTime(2025, 01, 01, 12, 00, 00, DateTimeKind.Utc));
+        var product1 = await CreateAProduct("Order Product 1", 100m, 10);
+        var product2 = await CreateAProduct("Order Product 2", 55.50m, 10);
+        var request = new SubmitOrderRequest([ new OrderItemRequest(product1.Id, 2), new OrderItemRequest(product2.Id, 1) ]);
+        
+        var submitOrderResponse = await _client.PostAsync("orders", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"));
+        
+        submitOrderResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var orderSummaryContent = await submitOrderResponse.Content.ReadAsStringAsync();
+        var orderSummary = JsonSerializer.Deserialize<OrderSummaryResponse>(orderSummaryContent, _serializerOptions);
+        orderSummary.Should().NotBeNull();
+        orderSummary!.Id.Should().NotBeEmpty();
+        orderSummary.TotalOrderAmount.Should().Be(255.50m);
+        orderSummary.OrderItems.Count.Should().Be(2);
+        orderSummary.OrderTimestamp.Should().Be(_timeProvider.GetUtcNow().DateTime.ToLocalTime());
+    }
+    
+    [Fact]
+    public async Task SubmitOrder_ReturnsError_WhenInsufficientStock()
+    {
+        var product = await CreateAProduct("Order Product X", 100m, 1);
+        var request = new SubmitOrderRequest([ new OrderItemRequest(product.Id, 2) ]);
+        
+        var submitOrderResponse = await _client.PostAsync("orders", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"));
+        
+        submitOrderResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
     
     private async Task<ProductResponse> CreateAProduct(string name, decimal price, int stockQuantity)

@@ -1,4 +1,6 @@
 ﻿using Application.Abstractions.Messaging;
+using Application.Orders;
+using Application.Orders.Commands;
 using Application.Products.Commands;
 using Application.Products.Queries;
 
@@ -18,6 +20,10 @@ public static class ServiceComposition
         services.AddTransient<ICommandHandler<UpdateProductPriceCommand, ProductResponse>, UpdateProductPriceCommandHandler>();
         services.AddTransient<ICommandHandler<UpdateProductStockCommand, ProductResponse>, UpdateProductStockCommandHandler>();
         services.AddTransient<ICommandHandler<DeleteProductCommand>, DeleteProductCommandHandler>();
+        
+        services.AddTransient<ICommandHandler<SubmitOrderCommand, OrderSummaryResponse>, SubmitOrderCommandHandler>();
+        
+        services.AddSingleton(TimeProvider.System);
 
         services.AddValidatorsFromAssembly(typeof(ServiceComposition).Assembly, includeInternalTypes: true);
 

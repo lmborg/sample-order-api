@@ -15,6 +15,7 @@ public class DefaultExceptionHandler(IProblemDetailsService problemDetailsServic
         {
             ProductNotFoundException _ => StatusCodes.Status404NotFound,
             ValidationException _ => StatusCodes.Status400BadRequest, // todo - ensure actual validation errors get included in response
+            InsufficientProductStockException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
 
