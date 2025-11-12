@@ -12,7 +12,7 @@ namespace Api.IntegrationTests;
 public class IntegrationTestsWebApplicationFactory : WebApplicationFactory<Program>
 {
     public FakeTimeProvider TimeProvider { get; } = new();
-    public OrderApiDbContext OrderApiDbContext { get; private set; }
+    public OrderApiDbContext? OrderApiDbContext { get; private set; }
     
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

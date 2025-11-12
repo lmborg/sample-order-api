@@ -16,7 +16,7 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
 {
     private readonly HttpClient _client = application.CreateClient();
     private readonly FakeTimeProvider _timeProvider = application.TimeProvider;
-    private readonly OrderApiDbContext _dbContext = application.OrderApiDbContext;
+    private readonly OrderApiDbContext _dbContext = application.OrderApiDbContext!;
     readonly JsonSerializerOptions _serializerOptions = new() { PropertyNameCaseInsensitive = true };
 
     [Fact]
@@ -138,7 +138,7 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
     }
 
     [Fact]
-    public async Task UpdatingProductStock_Fails_WhenVersionIsNotCurrent()
+    public void UpdatingProductStock_Fails_WhenVersionIsNotCurrent()
     {
         // todo: implement this test to ensure that the product version check prevents race conditions        
     }
