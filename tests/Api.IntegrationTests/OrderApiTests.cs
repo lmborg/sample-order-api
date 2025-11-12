@@ -24,11 +24,11 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
     {
         var request = new CreateProductRequest("Test Product A", 115.75m, 12);
         
-        var createProductResponse = await _client.PostAsync("products", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"));
+        var productResponse = await _client.PostAsync("products", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"));
         
-        createProductResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var createdProductContent = await createProductResponse.Content.ReadAsStringAsync();
-        var createdProduct = JsonSerializer.Deserialize<ProductResponse>(createdProductContent, _serializerOptions);
+        productResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var productResponseContent = await productResponse.Content.ReadAsStringAsync();
+        var createdProduct = JsonSerializer.Deserialize<ProductResponse>(productResponseContent, _serializerOptions);
         createdProduct.Should().NotBeNull();
         createdProduct!.Id.Should().NotBeEmpty();
         createdProduct.Name.Should().Be("Test Product A");
@@ -118,8 +118,14 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
         orderSummary.TotalOrderAmount.Should().Be(255.50m);
         orderSummary.OrderItems.Count.Should().Be(2);
         orderSummary.OrderTimestamp.Should().Be(_timeProvider.GetUtcNow().DateTime.ToLocalTime());
+        
+        var product = await GetProduct(product1);
+        product!.StockQuantity.Should().Be(8);
+        
+        product = await GetProduct(product2);
+        product!.StockQuantity.Should().Be(9);
     }
-    
+
     [Fact]
     public async Task SubmitOrder_ReturnsError_WhenInsufficientStock()
     {
@@ -131,6 +137,15 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
         submitOrderResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
     
+    private async Task<ProductResponse?> GetProduct(ProductResponse product1)
+    {
+        var productResponse = await _client.GetAsync($"products/{product1.Id}");
+        productResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var productResponseContent = await productResponse.Content.ReadAsStringAsync();
+        var product = JsonSerializer.Deserialize<ProductResponse>(productResponseContent, _serializerOptions);
+        return product;
+    }
+
     private async Task<ProductResponse> CreateAProduct(string name, decimal price, int stockQuantity)
     {
         var request = new CreateProductRequest(name, price, stockQuantity);
