@@ -17,7 +17,8 @@ public static class ServiceComposition
         services.AddTransient<IQueryHandler<GetProductByIdQuery, ProductResponse>, GetProductByIdQueryHandler>();
         services.AddTransient<ICommandHandler<UpdateProductPriceCommand, ProductResponse>, UpdateProductPriceCommandHandler>();
         services.AddTransient<ICommandHandler<UpdateProductStockCommand, ProductResponse>, UpdateProductStockCommandHandler>();
-        
+        services.AddTransient<ICommandHandler<DeleteProductCommand>, DeleteProductCommandHandler>();
+
         services.AddValidatorsFromAssembly(typeof(ServiceComposition).Assembly, includeInternalTypes: true);
 
         return services;

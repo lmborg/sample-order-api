@@ -14,7 +14,8 @@ public class ProductsController(
     IQueryHandler<GetAllProductsQuery, IEnumerable<ProductResponse>> getAllProductsQueryHandler,
     IQueryHandler<GetProductByIdQuery, ProductResponse> getProductByIdQueryHandler,
     ICommandHandler<UpdateProductStockCommand, ProductResponse> updateProductStockCommandHandler,
-    ICommandHandler<UpdateProductPriceCommand, ProductResponse> updateProductPriceCommandHandler) : ControllerBase
+    ICommandHandler<UpdateProductPriceCommand, ProductResponse> updateProductPriceCommandHandler,
+    ICommandHandler<DeleteProductCommand> deleteProductCommandHandler) : ControllerBase
 {
     [HttpPost]
     public async Task<ProductResponse> CreateProduct(CreateProductRequest request, CancellationToken cancellationToken)
@@ -50,5 +51,13 @@ public class ProductsController(
     {
         var command = new UpdateProductPriceCommand(productId, request.Price);
         return await updateProductPriceCommandHandler.Handle(command, cancellationToken);
+    }
+    
+    [HttpDelete]
+    [Route("{id:guid}")]
+    public async Task<IActionResult> DeleteProduct(Guid id, CancellationToken cancellationToken)
+    {
+        await deleteProductCommandHandler.Handle(new DeleteProductCommand(id), cancellationToken);
+        return NoContent();
     }
 }

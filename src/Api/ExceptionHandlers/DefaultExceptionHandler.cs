@@ -14,7 +14,7 @@ public class DefaultExceptionHandler(IProblemDetailsService problemDetailsServic
         httpContext.Response.StatusCode = exception switch
         {
             ProductNotFoundException _ => StatusCodes.Status404NotFound,
-            ValidationException _ => StatusCodes.Status400BadRequest,
+            ValidationException _ => StatusCodes.Status400BadRequest, // todo - ensure actual validation errors get included in response
             _ => StatusCodes.Status500InternalServerError
         };
 
