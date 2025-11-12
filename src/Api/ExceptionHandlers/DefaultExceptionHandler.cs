@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using Domain.Exceptions;
+
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.ExceptionHandlers;
@@ -9,6 +11,7 @@ public class DefaultExceptionHandler(IProblemDetailsService problemDetailsServic
     {
         httpContext.Response.StatusCode = exception switch
         {
+            ProductNotFoundException _ => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
         };
 

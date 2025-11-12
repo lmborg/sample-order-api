@@ -31,4 +31,22 @@ public class OrderApiTests(IntegrationTestsWebApplicationFactory application) : 
         createdProduct.Price.Should().Be(115.75m);
         createdProduct.StockQuantity.Should().Be(12);
     }
+    
+    [Fact]
+    public async Task GetAllProducts_ReturnsOk()
+    {
+        var productResponse = await _client.GetAsync("products");
+        
+        productResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
+    [Fact]
+    public async Task GetProductById_ReturnsNotFound_WithProblemDetails_WhenUnknownId()
+    {
+        var productResponse = await _client.GetAsync("products/unknown-id");
+        
+        productResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        
+        productResponse.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+    }
 }
