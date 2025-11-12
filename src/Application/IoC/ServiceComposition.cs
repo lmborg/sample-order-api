@@ -3,6 +3,7 @@ using Application.Orders;
 using Application.Orders.Commands;
 using Application.Products.Commands;
 using Application.Products.Queries;
+using Application.Reports;
 
 using FluentValidation;
 
@@ -22,10 +23,12 @@ public static class ServiceComposition
         services.AddTransient<ICommandHandler<DeleteProductCommand>, DeleteProductCommandHandler>();
         
         services.AddTransient<ICommandHandler<SubmitOrderCommand, OrderSummaryResponse>, SubmitOrderCommandHandler>();
-        
+
+        services.AddTransient<IQueryHandler<DailySummaryQuery, DailySummaryResponse>, DailySummaryQueryHandler>();
+
         services.AddSingleton(TimeProvider.System);
 
-        services.AddValidatorsFromAssembly(typeof(ServiceComposition).Assembly, includeInternalTypes: true);
+        services.AddValidatorsFromAssembly(typeof(ServiceComposition).Assembly);
 
         return services;
     }

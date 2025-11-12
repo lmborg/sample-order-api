@@ -1,14 +1,10 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-
 using Api.Requests;
-
 using Application.Orders;
 using Application.Products.Commands;
-
 using FluentAssertions;
-
 using Microsoft.Extensions.Time.Testing;
 
 namespace Api.IntegrationTests;
